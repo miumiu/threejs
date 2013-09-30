@@ -1,0 +1,223 @@
+<html>
+	<head>
+	<title>Three.js Chapter 1: Animating...</title>
+</head>
+<body>
+	<script type="text/javascript" src="js/three.min.js"></script>
+	<script type="text/javascript" src="js/helvetiker_regular.typeface.js"></script>
+	<script type="text/javascript">
+	        
+	    var container;
+
+	    var camera, scene, renderer;
+
+	    var group, text;
+
+	    init();
+	    animate();
+
+	    // Defining init()
+	    function init() {
+
+	        // Initializing container:
+	        container = document.createElement( 'div' );
+	        document.body.appendChild( container );
+
+	        // Initializing camera:
+
+	        
+	        // PERSPECTIVE CAMERA:
+	        camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 1000 );
+	        
+
+	        /*
+	        // ORTHOGRAPHIC CAMERA:
+	        camera = new THREE.OrthographicCamera(window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 1000 );
+	        */
+	        
+
+	        camera.position.x = 0;
+			camera.position.y = 150;
+			camera.position.z = 500;
+
+
+	        // Initializing scene:
+	        scene = new THREE.Scene();
+
+	        // TEXT OBJECT:
+	        // Intializing text:
+	        var textInput = "HTML5Rocks-3D with Three.js";
+	        var textGeometry = new THREE.TextGeometry( textInput, {
+
+	                size: 80,
+	                height: 20,
+	                curveSegments: 2,
+	                font: "helvetiker"
+
+	            });
+	        // Adding Mesh to text:
+	        var textMaterial = new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, overdraw: true } );
+	        text = new THREE.Mesh( textGeometry, textMaterial );
+
+	        text.position.x = -750;
+			text.position.y = 500;
+			text.position.z = 0;
+
+			// CUBE OBJECT:
+			var cubeGeometry = new THREE.CubeGeometry( 200, 200, 200 );
+			for ( var i = 0; i < cubeGeometry.faces.length; i += 2 ) {
+					var hex = Math.random() * 0xffffff;
+					cubeGeometry.faces[ i ].color.setHex( hex );
+					cubeGeometry.faces[ i + 1 ].color.setHex( hex );
+			}
+
+			
+			// MESH BASIC MATERIALS:
+			var cubeMaterial = new THREE.MeshBasicMaterial( { 
+				color: 0x880000 ,                                   // geometry color in hexadecimal. Default is 0xffffff.
+				//wireframe: false,                                   // render geometry as wireframe. Default is false.
+				//wireframeLinewidth:1,                               // Line thickness. Default is 1.
+				//wireframeLinecap:round,                             // Define appearance of line ends. Default is 'round'.
+				//wireframeLinejoin: round,                           // Define appearance of line joints. Default is 'round'.
+				//shading: THREE.SmoothShading,                       // Define shading type. Default is THREE.SmoothShading.
+				//vertexColors: THREE.FaceColors, 
+				//vertexColors: true,
+				//fog: true,                                          //Define whether the material color is affected 
+				                                                      //by global fog settings. Default is true.
+				overdraw: 0.5 
+			} );
+			
+			cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
+			
+
+			
+
+	        // Initializing objects group:
+	        group = new THREE.Object3D();
+	        group.add( text );
+	        group.add(cube);
+	        
+
+	        scene.add( group );
+
+	        // Initializing renderer:
+	        renderer = new THREE.CanvasRenderer();
+	        renderer.setSize( window.innerWidth, window.innerHeight );
+
+	        container.appendChild( renderer.domElement );
+
+	        document.addEventListener( 'mousedown', onDocumentMouseDown, false ); 
+	    }
+
+	    // Initializing variables for mouses, key , touch interactions:
+	    var targetRotation = 0;
+		var targetRotationOnMouseDown = 0;
+
+		var mouseX = 0;
+		var mouseXOnMouseDown = 0;
+
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+
+
+	    // MOUSE-UP, MOUSE-DOWN, MOUSE-MOVE:
+	    /*
+		function onDocumentMouseClick( event ) {
+			document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+		}
+
+		function onDocumentMouseDoubleClick( event ) {
+			document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+		}
+		*/
+
+		/*
+		function onDocumentMouseOver( event ) {
+			document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+		}
+
+		function onDocumentMouseOut( event ) {
+			document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+		}
+		*/
+
+		
+	    function onDocumentMouseDown( event ) {
+	    	event.preventDefault();
+
+	    	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+
+			mouseXOnMouseDown = event.clientX - windowHalfX;
+			targetRotationOnMouseDown = targetRotation;	
+	    }
+
+	    function onDocumentMouseMove( event ) {
+	    	document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+			mouseX = event.clientX - windowHalfX;
+
+			targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
+	    }
+
+	    function onDocumentMouseUp( event ) {
+	    	document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+	    }
+
+	    // SCROLL:
+
+	    /*
+	    // ARROWS KEY:
+	    function onDocumentKeyPress( event ) {
+	    }
+
+	    function onDocumentKeyDown( event ) {
+	    }
+
+	    function onDocumentKeyUp( event ) {
+	    }
+	    */
+
+	    /*
+	    // TOUCH:
+	    function onDocumentTouchStart( event ) {
+	    }
+
+	    function onDocumentTouchMove( event ) {
+	    }
+	    */
+
+	    // WINDOW RESIZE:
+
+
+	    // Defining animate()
+	    function animate() {
+
+	        requestAnimationFrame( animate );
+	        render();
+
+	    }
+
+
+	    // Defining render()
+	    function render() {
+			//cube.rotation.y += ( targetRotation - cube.rotation.y ) * 0.05;
+
+			renderer.render( scene, camera );
+	    }
+	</script>
+</body>
+</html>
